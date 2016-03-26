@@ -16,20 +16,24 @@ char *_strdupa(const char *s)
 void *heapAlloc(unsigned int len)
 {
     uint8_t *mem = malloc(len);
+
     if (!mem) {
         perror("malloc");
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
+
     return mem;
 }
 
 char *xstrdup(const char *s)
 {
     char *p = strdup(s);
+
     if (p == NULL) {
         perror("strdup");
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
+
     return p;
 }
 

@@ -1,3 +1,6 @@
+#ifndef BINFLOW_H
+#define BINFLOW_H
+
 #include <ctype.h>
 #include <elf.h>
 #include <errno.h>
@@ -61,11 +64,6 @@ typedef struct breakpoint {
     unsigned long vaddr;
     long orig_code;
 } breakpoint_t;
-
-struct branch_instr {
-    char *mnemonic;
-    uint8_t opcode;
-};
 
 typedef struct x86_regs {
     unsigned long eax;
@@ -150,7 +148,7 @@ typedef struct callstack {
 
 typedef struct branch_attr {
     char *function; // if its a call
-    char *mnemonic;
+    const char *mnemonic;
     unsigned long orig_word; // orig instruction
     unsigned long orig_ret;  // orig instr for rets only
     unsigned long target_offset;
@@ -225,3 +223,6 @@ size_t get_section_size(handle_t *, const char *);
 inline void set_breakpoint(handle_t *, void *, long *) __attribute__((always_inline));
 inline void remove_breakpoint(handle_t *, void *, long) __attribute__((always_inline));
 */
+
+#endif // BINFLOW_H
+
