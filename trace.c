@@ -692,14 +692,14 @@ int process_breakpoint_location(handle_t *h, unsigned long bpaddr)
              * This may not be a call but a ret_target which is indexed in as a call
              */
             argstr = build_arg_string(h, branch_site);
-            printf("%sLOCAL_call@0x%lx%s: %s%s\n", GREEN, bpaddr, WHITE,
-                   branch_site->branch.function, argstr);
+            printf("%sLOCAL_call@0x%lx%s: %s%s%s\n", GREEN, bpaddr, WHITE,
+                   branch_site->branch.function, argstr, RESET);
             free(argstr);
             break;
         case PLT_CALL:
             argstr = build_arg_string(h, branch_site);
-            printf("%sPLT_call@0x%lx:%s %s%s\n", GREEN, bpaddr, WHITE, branch_site->branch.function,
-                   argstr);
+            printf("%sPLT_call@0x%lx:%s %s%s%s\n", GREEN, bpaddr, WHITE, branch_site->branch.function,
+                   argstr, RESET);
             free(argstr);
             break;
         }
@@ -720,9 +720,9 @@ int process_breakpoint_location(handle_t *h, unsigned long bpaddr)
                 f1 = xstrdup(shdr1); // replace func names with shdr names if they can't be found
                 f2 = xstrdup(shdr2);
             }
-            printf("%s(CONTROL FLOW CHANGE [%s%s%s]):%s Jump from %s %lx to %s %lx\n", CYAN, BLUE,
+            printf("%s(CONTROL FLOW CHANGE [%s%s%s]):%s Jump from %s %lx to %s %lx%s\n", CYAN, BLUE,
                    branch_site->branch.mnemonic, CYAN, WHITE, f1, bpaddr, f2,
-                   branch_site->branch.target_vaddr);
+                   branch_site->branch.target_vaddr, RESET);
             free(f1);
             free(f2);
 
@@ -730,9 +730,9 @@ int process_breakpoint_location(handle_t *h, unsigned long bpaddr)
             /* If we are in any section other than .text then we print the
              * src and dst section name instead of the function name.
              */
-            printf("%s(CONTROL FLOW CHANGE [%s%s%s]):%s Jump from %s %lx into %s %lx\n", CYAN, BLUE,
+            printf("%s(CONTROL FLOW CHANGE [%s%s%s]):%s Jump from %s %lx into %s %lx%s\n", CYAN, BLUE,
                    branch_site->branch.mnemonic, CYAN, WHITE, shdr1, bpaddr, shdr2,
-                   branch_site->branch.target_vaddr);
+                   branch_site->branch.target_vaddr, RESET);
         break;
     }
     return 0;

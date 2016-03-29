@@ -117,7 +117,7 @@ void BuildSyms(handle_t *h)
 
 char *get_dt_strtab_name(handle_t *h, int xset)
 {
-    static char *dyn_strtbl;
+    static uint8_t *dyn_strtbl;
 
     if (!dyn_strtbl && !(dyn_strtbl = get_section_data(h, ".dynstr")))
         printf("[!] Could not locate .dynstr section\n");
@@ -128,14 +128,13 @@ char *get_dt_strtab_name(handle_t *h, int xset)
 void parse_dynamic_dt_needed(handle_t *h)
 {
     char *symstr;
-    int i, n_entries;
     ElfW(Dyn) * dyn;
 
     locate_dynamic_segment(h);
     h->lnc = 0;
 
     dyn = h->elf.dyn;
-    for (i = 0; dyn[i].d_tag != DT_NULL; i++) {
+    for (int i = 0; dyn[i].d_tag != DT_NULL; i++) {
         if (dyn[i].d_tag == DT_NEEDED) {
             symstr = get_dt_strtab_name(h, dyn[i].d_un.d_val);
             h->libnames[h->lnc++] = (char *)xstrdup(symstr);
@@ -235,21 +234,22 @@ int process_binary(handle_t *h)
 int validate_em_type(const char *path)
 {
     int fd;
-    uint8_t *mem, *p;
-    unsigned int value;
+
     Elf64_Ehdr *ehdr64;
     Elf32_Ehdr *ehdr32;
 
     if ((fd = open(path, O_RDONLY)) < 0) {
         fprintf(stderr, "Could not open %s: %s\n", path, strerror(errno));
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
 
-    mem = mmap(NULL, 4096, PROT_READ, MAP_PRIVATE, fd, 0);
+    uint8_t *mem = mmap(NULL, 4096, PROT_READ, MAP_PRIVATE, fd, 0);
+ 
     if (mem == MAP_FAILED) {
         perror("mmap");
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
+ 
     switch (opts.arch) {
     case 32:
         ehdr32 = (Elf32_Ehdr *)mem;

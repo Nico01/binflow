@@ -38,7 +38,7 @@ int parse_sub_args(char **argv, int argc, char ***args, char *argv0)
 int main(int argc, char **argv, char **envp)
 {
     handle_t *handle;
-    char *token = NULL, **args;
+    char *token = NULL;
     int ac, i, status, ret;
     pid_t pid;
     long ptraceOpts;

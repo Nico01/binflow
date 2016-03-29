@@ -36,6 +36,8 @@
 #define CYAN "\033[1;36m"
 #define BLUE "\x1b[1;34m"
 
+#define RESET "\033[0m"
+
 #define DEFAULT_COLOR "\x1B[0m"
 
 #define MAX_SYMS 8192 * 2
@@ -218,6 +220,10 @@ void xfree(void *);
 unsigned long get_instruction_pointer(int);
 ElfW(Addr) get_section_address(handle_t *, const char *);
 size_t get_section_size(handle_t *, const char *);
+
+int instrument_process(handle_t *h);
+int examine_process(handle_t *h);
+void parse_dynamic_dt_needed(handle_t *h);
 
 /*
 inline void set_breakpoint(handle_t *, void *, long *) __attribute__((always_inline));
