@@ -1,4 +1,5 @@
 #include "binflow.h"
+
 #define M_OFFSETOF(STRUCT, ELEMENT) (unsigned long)&((STRUCT *)NULL)->ELEMENT;
 
 struct options opts;
@@ -46,7 +47,7 @@ int set_ptrace_eip_portable(handle_t *h, struct user_regs_struct *pt_regs, unsig
     return 0;
 }
 
-int pid_write(int pid, void *dest, const void *src, size_t len)
+int pid_write(pid_t pid, void *dest, const void *src, size_t len)
 {
     size_t rem = len % sizeof(void *);
     size_t quot = len / sizeof(void *);
@@ -89,7 +90,7 @@ out_error:
     return -1;
 }
 
-int pid_read(int pid, void *dst, const void *src, size_t len)
+int pid_read(pid_t pid, void *dst, const void *src, size_t len)
 {
 
     int sz = len / sizeof(void *);
@@ -160,11 +161,9 @@ static char *get_pointer_range_str(handle_t *h, unsigned long addr)
     return NULL;
 }
 /*
- * Do not let the unsafe strcpy/strcat
- * in this crazy function scare you. Everything
- * is pre-allocated and nothing will ever exceed
- * the sizes to create an overflow condition.
- */
+ Do not let the unsafe strcpy/strcat in this crazy function scare you.
+ Everything is pre-allocated and nothing will ever exceed the sizes to create an overflow condition.
+*/
 char *build_arg_string(handle_t *h, branch_site_t *branch)
 {
     char *str = (char *)heapAlloc(1024);
@@ -172,7 +171,7 @@ char *build_arg_string(handle_t *h, branch_site_t *branch)
     char *args[6];
     char *ptr_range, *p;
     struct user_regs_struct regs;
-    int is_str = 0;
+
     ptrace(PTRACE_GETREGS, h->pid, NULL, &regs);
 
     switch (branch->branch.argc) {
@@ -503,7 +502,7 @@ char *build_arg_string(handle_t *h, branch_site_t *branch)
     return str;
 }
 
-char *getstr(unsigned long addr, int pid)
+char *getstr(unsigned long addr, pid_t pid)
 {
     int i, j, c;
     uint8_t buf[sizeof(long)];
@@ -550,7 +549,7 @@ out:
     return string;
 }
 
-void set_breakpoint(int pid, unsigned long bp, unsigned long *backup)
+void set_breakpoint(pid_t pid, unsigned long bp, unsigned long *backup)
 {
     unsigned long bpinstr;
     *backup = ptrace(PTRACE_PEEKDATA, pid, bp, 0);
@@ -558,15 +557,15 @@ void set_breakpoint(int pid, unsigned long bp, unsigned long *backup)
     pid_write(pid, (void *)bp, (void *)&bpinstr, sizeof(long));
 }
 
-void remove_breakpoint_and_step(int pid, unsigned long bp, unsigned long backup)
+void remove_breakpoint_and_step(pid_t pid, unsigned long bp, unsigned long backup)
 {
-    int status, i;
-    FILE *fd;
-    unsigned int eip_offset, ip;
+    int status; //, i;
+    //FILE *fd;
+    unsigned int eip_offset; //, ip;
     unsigned long addr = bp; // addr = breakpoint addr
-    struct user_regs_struct pt_reg;
-    siginfo_t siginfo;
-    char dbuf[16];
+    //struct user_regs_struct pt_reg;
+    //siginfo_t siginfo;
+    //char dbuf[16];
 #ifdef __x86_64__
     eip_offset = M_OFFSETOF(struct user_regs_struct, rip);
 #else
@@ -590,7 +589,7 @@ void remove_breakpoint_and_step(int pid, unsigned long bp, unsigned long backup)
     // waitpid(pid, &status, WUNTRACED|WCONTINUED);
 }
 
-unsigned long get_instruction_pointer(int pid)
+unsigned long get_instruction_pointer(pid_t pid)
 {
     unsigned int eip_offset; // offset of rip in struct user_regs_struct
     unsigned long eip;
@@ -608,12 +607,12 @@ unsigned long get_instruction_pointer(int pid)
 
 unsigned long get_top_of_stack(handle_t *h)
 {
-    unsigned int esp_offset;
-    unsigned long esp;
-    int pid = h->pid;
+    //unsigned int esp_offset;
+    //unsigned long esp;
+    pid_t pid = h->pid;
     struct user_regs_struct pt_reg;
     unsigned long retval;
-    int i;
+    //int i;
 
     ptrace(PTRACE_GETREGS, h->pid, NULL, &pt_reg);
     pid_read(pid, (void *)&retval, (void *)pt_reg.rsp, 8);
@@ -640,10 +639,9 @@ branch_site_t *lookup_breakpoint_branch(handle_t *h, unsigned long addr)
     return NULL;
 }
 
-int instrument_process(handle_t *h)
+void instrument_process(handle_t *h)
 {
-    size_t i;
-    for (i = 0; i < h->branch_count; i++) {
+    for (size_t i = 0; i < h->branch_count; i++) {
         switch (h->branch_site[i].branch_type) {
         case IMMEDIATE_CALL:
             if (opts.debug)
@@ -677,7 +675,7 @@ int instrument_process(handle_t *h)
 int process_breakpoint_location(handle_t *h, unsigned long bpaddr)
 {
     char *shdr1, *shdr2, *argstr, *f1, *f2;
-    unsigned long vaddr;
+    //unsigned long vaddr;
     branch_site_t *branch_site = lookup_breakpoint_branch(h, bpaddr);
 
     if (branch_site == NULL) {
@@ -740,24 +738,25 @@ int process_breakpoint_location(handle_t *h, unsigned long bpaddr)
 
 int examine_process(handle_t *h)
 {
-    unsigned int i, j;
+    unsigned int i; //, j;
     h->addrspace = (struct address_space *)heapAlloc(sizeof(struct address_space) * MAX_ADDR_SPACE);
-    struct user_regs_struct pt_regs;
-    x86_regs_t x86_regs;
+    //struct user_regs_struct pt_regs;
+    //x86_regs_t x86_regs;
     int status;
-    unsigned int eip_offset;
+    //unsigned int eip_offset;
     unsigned long orig_word;
     unsigned long bpaddr;
     unsigned long null;
-    siginfo_t siginfo;
-    char buf[16];
+    //siginfo_t siginfo;
+    //char buf[16];
 
+/*
 #ifdef __x86_64__
-    eip_offset = M_OFFSETOF(struct user_regs_struct, rip);
+    uint64_t eip_offset = M_OFFSETOF(struct user_regs_struct, rip);
 #else
-    eip_offset = m_OFFSETOF(struct user_regs_struct, eip);
+    uint32_t eip_offset = m_OFFSETOF(struct user_regs_struct, eip);
 #endif
-
+*/
     get_address_space((struct address_space *)h->addrspace, h->pid, h->path);
 
     if (opts.verbose || opts.debug)
@@ -817,7 +816,7 @@ do_trace:
         if (special)
             goto do_trace;
 
-        char dbuf[16];
+        //char dbuf[16];
         /* Regular SIGTRAP? */
         bpaddr = get_instruction_pointer(h->pid); // will be at bpaddr + 1
         orig_word = lookup_breakpoint_origval(h, bpaddr - 1);

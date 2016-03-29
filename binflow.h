@@ -203,7 +203,7 @@ typedef struct handle {
 } handle_t;
 
 int validate_em_type(const char *);
-uint8_t *get_section_data(handle_t *, const char *);
+char *get_section_data(handle_t *, const char *);
 void locate_dynamic_segment(handle_t *);
 int process_binary(handle_t *);
 char *get_section_by_range(handle_t *, unsigned long);
@@ -221,7 +221,7 @@ unsigned long get_instruction_pointer(int);
 ElfW(Addr) get_section_address(handle_t *, const char *);
 size_t get_section_size(handle_t *, const char *);
 
-int instrument_process(handle_t *h);
+void instrument_process(handle_t *h);
 int examine_process(handle_t *h);
 void parse_dynamic_dt_needed(handle_t *h);
 

@@ -117,7 +117,7 @@ void BuildSyms(handle_t *h)
 
 char *get_dt_strtab_name(handle_t *h, int xset)
 {
-    static uint8_t *dyn_strtbl;
+    static char *dyn_strtbl;
 
     if (!dyn_strtbl && !(dyn_strtbl = get_section_data(h, ".dynstr")))
         printf("[!] Could not locate .dynstr section\n");
@@ -142,7 +142,7 @@ void parse_dynamic_dt_needed(handle_t *h)
     }
 }
 
-uint8_t *get_section_data(handle_t *h, const char *section_name)
+char *get_section_data(handle_t *h, const char *section_name)
 {
     char *StringTable = h->elf.StringTable;
     ElfW(Ehdr) *ehdr = h->elf.ehdr;
@@ -151,7 +151,7 @@ uint8_t *get_section_data(handle_t *h, const char *section_name)
 
     for (i = 0; i < ehdr->e_shnum; i++) {
         if (strcmp(&StringTable[shdr[i].sh_name], section_name) == 0)
-            return (uint8_t *)&h->elf.mem[shdr[i].sh_offset];
+            return (char *)&h->elf.mem[shdr[i].sh_offset];
     }
 
     return NULL;

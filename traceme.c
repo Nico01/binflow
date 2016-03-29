@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/ptrace.h>
 
 int check_serial(char *s)
@@ -26,7 +27,7 @@ int dummy_check(char *s)
 
 int main(void)
 {
-    char c;
+    //char c;
     char buf[256];
 /*
     if (ptrace(PTRACE_TRACEME, 0, NULL, NULL) < 0) {
