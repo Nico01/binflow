@@ -201,7 +201,7 @@ int process_binary(handle_t *h)
     for (i = 0; i < ehdr->e_phnum; i++) {
         switch (phdr[i].p_type) {
         case PT_LOAD:
-            switch (!(!phdr[i].p_offset)) {
+            switch ((int)!(!phdr[i].p_offset)) {
             case 0:
                 h->elf.textVaddr = phdr[i].p_vaddr;
                 h->elf.textSize = phdr[i].p_memsz;

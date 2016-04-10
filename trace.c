@@ -643,6 +643,8 @@ void instrument_process(handle_t *h)
 {
     for (size_t i = 0; i < h->branch_count; i++) {
         switch (h->branch_site[i].branch_type) {
+        default:
+            break;
         case IMMEDIATE_CALL:
             if (opts.debug)
                 printf("[+] Setting breakpoint on immediate 'call %lx' instruction: %lx\n",
@@ -683,6 +685,8 @@ int process_breakpoint_location(handle_t *h, unsigned long bpaddr)
         return -1;
     }
     switch (branch_site->branch_type) {
+    default:
+        break;
     case IMMEDIATE_CALL:
         switch (branch_site->branch.calltype) {
         case LOCAL_CALL:

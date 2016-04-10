@@ -1,5 +1,5 @@
 #CC = clang
-CFLAGS = -Wall -g
+CFLAGS = -Wall -pedantic
 LDFLAGS = -lcapstone
 
 all: binflow traceme
